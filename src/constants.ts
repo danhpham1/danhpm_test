@@ -1,0 +1,3 @@
+export const CATEGORIES_REPOSITORY = Symbol('CATEGORIES_REPOSITORY');
+
+export const AUTH_SERVICE = Symbol('AUTH_SERVICE');
