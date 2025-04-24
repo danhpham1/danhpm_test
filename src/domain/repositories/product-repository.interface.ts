@@ -1,12 +1,12 @@
 import { ICreateProductBody, IProduct, IQueryParamProduct } from '@domain/interfaces/product.interface';
-import { UpdateResult } from 'typeorm';
+import { QueryRunner, UpdateResult } from 'typeorm';
 
 export interface IProductRepository {
 //   findAll(): Promise<Array<ICategories>>;
 //   findById(id: string): Promise<ICategories>;
-    createProduct(data: ICreateProductBody): Promise<IProduct>;
-    updateProduct(body: ICreateProductBody, id: string): Promise<UpdateResult>;
-    deleteProduct(id: string): Promise<UpdateResult>;
+    createProduct(data: ICreateProductBody, queryRunner?: QueryRunner): Promise<IProduct>;
+    updateProduct(body: ICreateProductBody, id: string, queryRunner?: QueryRunner): Promise<UpdateResult>;
+    deleteProduct(id: string, queryRunner?: QueryRunner): Promise<UpdateResult>;
     findAll(params: IQueryParamProduct): Promise<Array<IProduct>>;
     findById(id: string): Promise<IProduct>;
 }

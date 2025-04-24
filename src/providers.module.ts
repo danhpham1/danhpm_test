@@ -1,11 +1,12 @@
 import { DatabaseModule } from '@frameworks/database/database.module';
 import { Global, Module } from '@nestjs/common';
-import { CATEGORIES_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_TYPE_REPOSITORY, TYPE_REPOSITORY } from './constants';
+import { CATEGORIES_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_TYPE_REPOSITORY, TYPE_REPOSITORY, UNIT_OF_WORK_SERVICE } from './constants';
 import { CategoriesRepository } from '@frameworks/database/repositories/categories.repository';
 import { TypeRepository } from '@frameworks/database/repositories/type.repository';
 import { ProductRepository } from '@frameworks/database/repositories/product.repository';
 import { ProductTypeRepository } from './frameworks/database/repositories/product-type.repository';
 import { ProductCategoryRepository } from './frameworks/database/repositories/product-category.repository';
+import { UnitOfWork } from './frameworks/database/unit-of-work.service';
 @Global()
 @Module({
   imports: [
@@ -38,8 +39,12 @@ import { ProductCategoryRepository } from './frameworks/database/repositories/pr
     {
       provide: PRODUCT_CATEGORY_REPOSITORY,
       useExisting: ProductCategoryRepository,
+    },
+    {
+      provide: UNIT_OF_WORK_SERVICE,
+      useExisting: UnitOfWork
     }
   ],
-  exports: [CATEGORIES_REPOSITORY, TYPE_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_TYPE_REPOSITORY],
+  exports: [CATEGORIES_REPOSITORY, TYPE_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_TYPE_REPOSITORY, UNIT_OF_WORK_SERVICE],
 })
-export class ProvidersModule {}
+export class ProvidersModule { }

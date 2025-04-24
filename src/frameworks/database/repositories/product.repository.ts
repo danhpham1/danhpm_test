@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { DataSource, QueryRunner, Repository, UpdateResult } from 'typeorm';
 import { ProductEntity } from '../entities/product.entity';
 import { IProductRepository } from '@domain/repositories/product-repository.interface';
 import { ICreateProductBody, IProduct } from '@domain/interfaces/product.interface';
@@ -7,8 +7,7 @@ import { ICreateProductBody, IProduct } from '@domain/interfaces/product.interfa
 @Injectable()
 export class ProductRepository
   extends Repository<ProductEntity>
-  implements IProductRepository
-{
+  implements IProductRepository {
   constructor(dataSource: DataSource) {
     super(ProductEntity, dataSource.createEntityManager());
   }
@@ -18,48 +17,75 @@ export class ProductRepository
   }
 
   findById(id: string): Promise<IProduct> {
-      return this.findOne({
-        where: {
-            id
-        },
-        relations: ['category', 'type']
-      });
+    return this.findOne({
+      where: {
+        id
+      },
+      relations: ['category', 'type']
+    });
   }
 
-  createProduct(data?: ICreateProductBody): Promise<IProduct> {
+  createProduct(data?: ICreateProductBody, queryRunner?: QueryRunner): Promise<IProduct> {
     const productEntity = this.create({
-        name: data.name,
-        price: data.price,
-        createdBy: 'admin'
-      });
-      
+      name: data.name,
+      price: data.price,
+      createdBy: 'admin'
+    });
+
+    if (queryRunner) {
+      return queryRunner.manager.save(ProductEntity, productEntity);
+    }
+
     return this.save(productEntity);
   }
 
-  updateProduct(body: ICreateProductBody, id: string): Promise<UpdateResult> {
-      return this.update(
+  updateProduct(body: ICreateProductBody, id: string, queryRunner?: QueryRunner): Promise<UpdateResult> {
+
+    if (queryRunner) {
+      return queryRunner.manager.update(ProductEntity, {
+        id
+      },
         {
-            id
-        },
-        {
-            ...body,
-            updatedAt: new Date(),
-            updatedBy: 'admin'
-        }
-      )
+          ...body,
+          updatedAt: new Date(),
+          updatedBy: 'admin'
+        })
+    }
+
+    return this.update(
+      {
+        id
+      },
+      {
+        ...body,
+        updatedAt: new Date(),
+        updatedBy: 'admin'
+      }
+    )
   }
 
-  deleteProduct(id: string): Promise<UpdateResult> {
-      return this.update(
+  deleteProduct(id: string, queryRunner?: QueryRunner): Promise<UpdateResult> {
+    if (queryRunner) {
+      return queryRunner.manager.update(ProductEntity, {
+        id
+      },
         {
-            id
-        },
-        {
-            deletedAt: new Date(),
-            deletedBy: 'admin',
-            isDeleted: true,
-            updatedAt: new Date()
-        }
-      )
+          deletedAt: new Date(),
+          deletedBy: 'admin',
+          isDeleted: true,
+          updatedAt: new Date()
+        });
+    }
+    return this.update(
+      {
+        id
+      },
+      {
+        deletedAt: new Date(),
+        deletedBy: 'admin',
+        isDeleted: true,
+        updatedAt: new Date()
+      }
+    )
   }
 }

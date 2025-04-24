@@ -5,6 +5,7 @@ import {
   PRODUCT_REPOSITORY,
   PRODUCT_TYPE_REPOSITORY,
   TYPE_REPOSITORY,
+  UNIT_OF_WORK_SERVICE,
 } from '@/constants';
 import { BaseUseCase } from '../base-use-case.interface';
 import { ITypeRepository } from '@domain/repositories/type-repository.interface';
@@ -14,6 +15,7 @@ import { IProductTypeRepository } from '@/domain/repositories/product-type-repos
 import { IProduct } from '@domain/interfaces/product.interface';
 import { IBodyUpdateProductUseCase } from './product.interface';
 import { IProductRepository } from '@/domain/repositories/product-repository.interface';
+import { UnitOfWork } from '@/frameworks/database/unit-of-work.service';
 
 @Injectable()
 export class UpdateProductUseCase implements BaseUseCase {
@@ -28,7 +30,9 @@ export class UpdateProductUseCase implements BaseUseCase {
     private readonly productTypeRepository: IProductTypeRepository,
     @Inject(PRODUCT_CATEGORY_REPOSITORY)
     private readonly productCategoryRepository: IProductCategoryRepository,
-  ) {}
+    @Inject(UNIT_OF_WORK_SERVICE)
+    private readonly unitOfWork: UnitOfWork,
+  ) { }
   async execute(body: IBodyUpdateProductUseCase, id: string): Promise<IProduct> {
     if (!id) throw new NotFoundException('Not found id product');
 
@@ -57,30 +61,44 @@ export class UpdateProductUseCase implements BaseUseCase {
       dataUpdate['typeID'] = type.id;
     }
 
-    // Update product
-    await this.productRepository.updateProduct({
+    try {
+      //Init trans
+      this.unitOfWork.startTransaction();
+      const queryRunner = this.unitOfWork.getQueryRunner();
+
+      // Update product
+      await this.productRepository.updateProduct({
         name: body.name,
         price: body.price
-    }, id);
+      }, id, queryRunner);
 
-    // Update type product
-    if (dataUpdate['typeID']) {
-        await this.productTypeRepository.deleteProductType(product.id);
+      // Update type product
+      if (dataUpdate['typeID']) {
+        await this.productTypeRepository.deleteProductType(product.id, queryRunner);
         await this.productTypeRepository.createProductType({
-            productID: product.id,
-            typeID: dataUpdate['typeID']
-        });
-    }
+          productID: product.id,
+          typeID: dataUpdate['typeID']
+        }, queryRunner);
+      }
 
-    // Update category product
-    if (dataUpdate['categoryID']) {
-        await this.productCategoryRepository.deleteProductCategory(product.id);
+      // Update category product
+      if (dataUpdate['categoryID']) {
+        await this.productCategoryRepository.deleteProductCategory(product.id, queryRunner);
         await this.productCategoryRepository.createProductCategory({
-            productID: product.id,
-            categoryID: dataUpdate['categoryID']
-        });
-    }
+          productID: product.id,
+          categoryID: dataUpdate['categoryID']
+        }, queryRunner);
+      }
 
-    return product;
+      // COmmit trans
+      await this.unitOfWork.commitTransaction();
+
+      return product;
+    } catch (error) {
+      await this.unitOfWork.rollbackTransaction();
+      throw error;
+    } finally {
+      await this.unitOfWork.release();
+    }
   }
 }
