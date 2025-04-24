@@ -1,8 +1,11 @@
 import { DatabaseModule } from '@frameworks/database/database.module';
 import { Global, Module } from '@nestjs/common';
-import { CATEGORIES_REPOSITORY, TYPE_REPOSITORY } from './constants';
+import { CATEGORIES_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_TYPE_REPOSITORY, TYPE_REPOSITORY } from './constants';
 import { CategoriesRepository } from '@frameworks/database/repositories/categories.repository';
 import { TypeRepository } from '@frameworks/database/repositories/type.repository';
+import { ProductRepository } from '@frameworks/database/repositories/product.repository';
+import { ProductTypeRepository } from './frameworks/database/repositories/product-type.repository';
+import { ProductCategoryRepository } from './frameworks/database/repositories/product-category.repository';
 @Global()
 @Module({
   imports: [
@@ -22,9 +25,21 @@ import { TypeRepository } from '@frameworks/database/repositories/type.repositor
     },
     {
       provide: TYPE_REPOSITORY,
-      useExisting: TypeRepository
+      useExisting: TypeRepository,
+    },
+    {
+      provide: PRODUCT_REPOSITORY,
+      useExisting: ProductRepository,
+    },
+    {
+      provide: PRODUCT_TYPE_REPOSITORY,
+      useExisting: ProductTypeRepository,
+    },
+    {
+      provide: PRODUCT_CATEGORY_REPOSITORY,
+      useExisting: ProductCategoryRepository,
     }
   ],
-  exports: [CATEGORIES_REPOSITORY, TYPE_REPOSITORY],
+  exports: [CATEGORIES_REPOSITORY, TYPE_REPOSITORY, PRODUCT_REPOSITORY, PRODUCT_CATEGORY_REPOSITORY, PRODUCT_TYPE_REPOSITORY],
 })
 export class ProvidersModule {}

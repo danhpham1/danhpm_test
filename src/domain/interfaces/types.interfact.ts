@@ -1,12 +1,6 @@
-export interface IType {
-  id: string;
+import { IBase } from "./base.interface";
+
+export interface IType extends IBase{
   name: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
-  isDeleted: boolean;
   isActive: boolean;
-  deletedBy: string;
-  createdBy: string;
-  updatedBy: string;
 }

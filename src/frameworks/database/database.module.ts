@@ -4,6 +4,9 @@ import { ConfigurableModuleClass } from './database.module-definition';
 import { DatabaseModuleOptions } from './constants';
 import { CategoriesRepository } from './repositories/categories.repository';
 import { TypeRepository } from './repositories/type.repository';
+import { ProductRepository } from './repositories/product.repository';
+import { ProductTypeRepository } from './repositories/product-type.repository';
+import { ProductCategoryRepository } from './repositories/product-category.repository';
 
 @Module({})
 export class DatabaseModule extends ConfigurableModuleClass {
@@ -24,10 +27,10 @@ export class DatabaseModule extends ConfigurableModuleClass {
             encrypt: false,
           },
         }),
-        TypeOrmModule.forFeature([CategoriesRepository, TypeRepository]),
+        TypeOrmModule.forFeature([CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository]),
       ],
-      providers: [CategoriesRepository, TypeRepository],
-      exports: [CategoriesRepository, TypeRepository],
+      providers: [CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository],
+      exports: [CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository],
     };
   }
 }
