@@ -4,6 +4,14 @@ export interface IProduct extends IBase {
     name: string;
     price: number;
     isActive: boolean;
+    category?: {
+        id: string;
+        name: string;
+    }
+    type?: {
+        id: string;
+        name: string;
+    }
 }
 
 export interface ICreateProductBody {

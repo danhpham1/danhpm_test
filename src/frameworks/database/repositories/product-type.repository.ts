@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository, UpdateResult } from 'typeorm';
+import { DataSource, DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { ProductTypeEntity } from '../entities/product-type.entity';
 import { IProductTypeRepository } from '@domain/repositories/product-type-repository.interface';
 import { ICreateProductTypeBody, IProductType } from '@domain/interfaces/product-type.interface';
@@ -12,27 +12,19 @@ export class ProductTypeRepository
   constructor(dataSource: DataSource) {
     super(ProductTypeEntity, dataSource.createEntityManager());
   }
-    createProductType(data: ICreateProductTypeBody): Promise<IProductType> {
-        const entity = this.create({
-            productID: data.productID,
-            typeID: data.typeID,
-            createdBy: 'admin'
-        });
+  createProductType(data: ICreateProductTypeBody): Promise<IProductType> {
+    const entity = this.create({
+      productID: data.productID,
+      typeID: data.typeID,
+      createdBy: 'admin',
+    });
 
-        return this.save(entity);
-    }
+    return this.save(entity);
+  }
 
-    deleteProductType(productID: string): Promise<UpdateResult> {
-        return this.update(
-            {
-                productID: productID
-            },
-            {
-                deletedAt: new Date(),
-                deletedBy: 'admin',
-                isDeleted: true,
-                updatedAt: new Date()
-            }
-        )
-    }
+  deleteProductType(productID: string): Promise<DeleteResult> {
+    return this.delete({
+      productID: productID,
+    });
+  }
 }

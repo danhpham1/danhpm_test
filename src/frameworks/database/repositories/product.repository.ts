@@ -17,6 +17,15 @@ export class ProductRepository
     return this.find();
   }
 
+  findById(id: string): Promise<IProduct> {
+      return this.findOne({
+        where: {
+            id
+        },
+        relations: ['category', 'type']
+      });
+  }
+
   createProduct(data?: ICreateProductBody): Promise<IProduct> {
     const productEntity = this.create({
         name: data.name,

@@ -8,4 +8,5 @@ export interface IProductRepository {
     updateProduct(body: ICreateProductBody, id: string): Promise<UpdateResult>;
     deleteProduct(id: string): Promise<UpdateResult>;
     findAll(params: IQueryParamProduct): Promise<Array<IProduct>>;
+    findById(id: string): Promise<IProduct>;
 }
