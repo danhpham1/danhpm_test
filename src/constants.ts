@@ -1,3 +1,4 @@
 export const CATEGORIES_REPOSITORY = Symbol('CATEGORIES_REPOSITORY');
+export const TYPE_REPOSITORY = Symbol('TYPE_REPOSITORY');
 
 export const AUTH_SERVICE = Symbol('AUTH_SERVICE');

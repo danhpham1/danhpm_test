@@ -1,10 +1,9 @@
-import { ICategories } from '../interfaces/categories.interfact';
+import { IType } from '../interfaces/types.interfact';
 import { BaseEntity } from './base.entity';
 
-export class Category extends BaseEntity implements ICategories {
+export class Type extends BaseEntity implements IType {
   id: string;
   name: string;
-  parent_id?: string;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

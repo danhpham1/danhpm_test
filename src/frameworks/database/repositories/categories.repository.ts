@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { CategoriesEntity } from '../entities/categories.entity';
-import { ICategoriesRepository } from '@/domain/repositories/categories-repository.inteface';
+import { ICategoriesRepository } from '@/domain/repositories/categories-repository.intefaces';
 import { ICategories } from '@/domain/interfaces/categories.interfact';
 
 @Injectable()

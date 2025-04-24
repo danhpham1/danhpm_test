@@ -1,8 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { CATEGORIES_REPOSITORY } from '@/constants';
 import { ICategories } from '@/domain/interfaces/categories.interfact';
-import { ICategoriesRepository } from '@/domain/repositories/categories-repository.inteface';
-import { Category } from '@domain/entities/categories.interface';
+import { ICategoriesRepository } from '@/domain/repositories/categories-repository.intefaces';
+import { Category } from '@/domain/entities/categories.entity';
 import { BaseUseCase } from '../base-use-case.interface';
 
 @Injectable()

@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigurableModuleClass } from './database.module-definition';
 import { DatabaseModuleOptions } from './constants';
 import { CategoriesRepository } from './repositories/categories.repository';
+import { TypeRepository } from './repositories/type.repository';
 
 @Module({})
 export class DatabaseModule extends ConfigurableModuleClass {
@@ -23,10 +24,10 @@ export class DatabaseModule extends ConfigurableModuleClass {
             encrypt: false,
           },
         }),
-        TypeOrmModule.forFeature([CategoriesRepository]),
+        TypeOrmModule.forFeature([CategoriesRepository, TypeRepository]),
       ],
-      providers: [CategoriesRepository],
-      exports: [CategoriesRepository],
+      providers: [CategoriesRepository, TypeRepository],
+      exports: [CategoriesRepository, TypeRepository],
     };
   }
 }
