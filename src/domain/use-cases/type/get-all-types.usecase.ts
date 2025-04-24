@@ -1,9 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { TYPE_REPOSITORY } from '@/constants';
-import { ICategories } from '@/domain/interfaces/categories.interfact';
+import { ICategories } from '@/domain/interfaces/category/categories.interfact';
 import { BaseUseCase } from '../base-use-case.interface';
 import { ITypeRepository } from '@domain/repositories/type-repository.interface';
-import { Type } from '@domain/entities/types.entity';
+import { Type } from '@domain/entities/type/types.entity';
 
 @Injectable()
 export class GetAllTypesUseCase implements BaseUseCase {

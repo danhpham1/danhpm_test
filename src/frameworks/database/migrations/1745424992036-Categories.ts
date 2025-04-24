@@ -76,9 +76,9 @@ export class Categories1745424992036 implements MigrationInterface {
     //Init data
     await queryRunner.query(`
         INSERT INTO categories (id, name, is_active, created_at, updated_at, is_deleted) VALUES
-        (NEWID(), 'Điện thoại', 1, GETDATE(), GETDATE(), 0),
-        (NEWID(), 'Máy tính', 1, GETDATE(), GETDATE(), 0),
-        (NEWID(), 'Đồ điện tử thông minh', 1, GETDATE(), GETDATE(), 0)
+        (NEWID(), 'SmartPhone', 1, GETDATE(), GETDATE(), 0),
+        (NEWID(), 'Laptop', 1, GETDATE(), GETDATE(), 0),
+        (NEWID(), 'SmartHome', 1, GETDATE(), GETDATE(), 0)
     `);
   }
 

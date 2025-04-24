@@ -22,4 +22,12 @@ export class UpdateProductDTO {
   @IsString()
   @IsOptional()
   typeID?: string;
+
+  @IsString()
+  @IsOptional()
+  filePath?: string;
+
+  @IsString()
+  @IsOptional()
+  fileName?: string;
 }

@@ -1,4 +1,4 @@
-import { IBase } from "./base.interface";
+import { IBase } from '../base.interface';
 
 export interface ICategories extends Partial<IBase> {
   name: string;

@@ -7,6 +7,8 @@ import { TypeRepository } from './repositories/type.repository';
 import { ProductRepository } from './repositories/product.repository';
 import { ProductTypeRepository } from './repositories/product-type.repository';
 import { ProductCategoryRepository } from './repositories/product-category.repository';
+import { UnitOfWork } from './unit-of-work.service';
+import { ProductImageRepository } from './repositories/product-image.repository';
 
 @Module({})
 export class DatabaseModule extends ConfigurableModuleClass {
@@ -26,11 +28,35 @@ export class DatabaseModule extends ConfigurableModuleClass {
           options: {
             encrypt: false,
           },
+          logging: true,
         }),
-        TypeOrmModule.forFeature([CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository]),
+        TypeOrmModule.forFeature([
+          CategoriesRepository,
+          TypeRepository,
+          ProductRepository,
+          ProductTypeRepository,
+          ProductCategoryRepository,
+          ProductImageRepository,
+        ]),
       ],
-      providers: [CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository],
-      exports: [CategoriesRepository, TypeRepository, ProductRepository, ProductTypeRepository, ProductCategoryRepository],
+      providers: [
+        CategoriesRepository,
+        TypeRepository,
+        ProductRepository,
+        ProductTypeRepository,
+        ProductCategoryRepository,
+        ProductImageRepository,
+        UnitOfWork,
+      ],
+      exports: [
+        CategoriesRepository,
+        TypeRepository,
+        ProductRepository,
+        ProductTypeRepository,
+        ProductCategoryRepository,
+        ProductImageRepository,
+        UnitOfWork,
+      ],
     };
   }
 }

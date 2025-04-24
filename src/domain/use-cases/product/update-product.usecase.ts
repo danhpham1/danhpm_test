@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CATEGORIES_REPOSITORY,
   PRODUCT_CATEGORY_REPOSITORY,
+  PRODUCT_IMAGE_REPOSITORY,
   PRODUCT_REPOSITORY,
   PRODUCT_TYPE_REPOSITORY,
   TYPE_REPOSITORY,
@@ -12,10 +13,11 @@ import { ITypeRepository } from '@domain/repositories/type-repository.interface'
 import { ICategoriesRepository } from '@domain/repositories/categories-repository.intefaces';
 import { IProductCategoryRepository } from '@/domain/repositories/product-category-repository.interface';
 import { IProductTypeRepository } from '@/domain/repositories/product-type-repository.interface';
-import { IProduct } from '@domain/interfaces/product.interface';
+import { IProduct } from '@domain/interfaces/product/product.interface';
 import { IBodyUpdateProductUseCase } from './product.interface';
 import { IProductRepository } from '@/domain/repositories/product-repository.interface';
 import { UnitOfWork } from '@/frameworks/database/unit-of-work.service';
+import { IProductImageRepository } from '@/domain/repositories/product-image-repository.interface';
 
 @Injectable()
 export class UpdateProductUseCase implements BaseUseCase {
@@ -30,10 +32,15 @@ export class UpdateProductUseCase implements BaseUseCase {
     private readonly productTypeRepository: IProductTypeRepository,
     @Inject(PRODUCT_CATEGORY_REPOSITORY)
     private readonly productCategoryRepository: IProductCategoryRepository,
+    @Inject(PRODUCT_IMAGE_REPOSITORY)
+    private readonly productImageRepository: IProductImageRepository,
     @Inject(UNIT_OF_WORK_SERVICE)
     private readonly unitOfWork: UnitOfWork,
-  ) { }
-  async execute(body: IBodyUpdateProductUseCase, id: string): Promise<IProduct> {
+  ) {}
+  async execute(
+    body: IBodyUpdateProductUseCase,
+    id: string,
+  ): Promise<IProduct> {
     if (!id) throw new NotFoundException('Not found id product');
 
     const product = await this.productRepository.findById(id);
@@ -41,7 +48,10 @@ export class UpdateProductUseCase implements BaseUseCase {
 
     if (!product) throw new NotFoundException('Not found product');
 
-    if (body.categoryID && (body.categoryID !== product?.category?.id)) {
+    if (
+      body.categoryID &&
+      body.categoryID !== product?.productCategory?.categoryID
+    ) {
       const category = await this.categoryRepository.findById(body.categoryID);
 
       if (!category) {
@@ -51,7 +61,7 @@ export class UpdateProductUseCase implements BaseUseCase {
       dataUpdate['categoryID'] = category.id;
     }
 
-    if (body.typeID && (body.typeID !== product?.type?.id)) {
+    if (body.typeID && body.typeID !== product?.productType?.typeID) {
       const type = await this.typeRepository.findById(body.typeID);
 
       if (!type) {
@@ -63,31 +73,63 @@ export class UpdateProductUseCase implements BaseUseCase {
 
     try {
       //Init trans
-      this.unitOfWork.startTransaction();
+      await this.unitOfWork.startTransaction();
       const queryRunner = this.unitOfWork.getQueryRunner();
 
       // Update product
-      await this.productRepository.updateProduct({
-        name: body.name,
-        price: body.price
-      }, id, queryRunner);
+      await this.productRepository.updateProduct(
+        {
+          name: body.name,
+          price: body.price,
+        },
+        id,
+        queryRunner,
+      );
 
       // Update type product
       if (dataUpdate['typeID']) {
-        await this.productTypeRepository.deleteProductType(product.id, queryRunner);
-        await this.productTypeRepository.createProductType({
-          productID: product.id,
-          typeID: dataUpdate['typeID']
-        }, queryRunner);
+        await this.productTypeRepository.deleteProductType(
+          product.id,
+          queryRunner,
+        );
+        await this.productTypeRepository.createProductType(
+          {
+            productID: product.id,
+            typeID: dataUpdate['typeID'],
+          },
+          queryRunner,
+        );
       }
 
       // Update category product
       if (dataUpdate['categoryID']) {
-        await this.productCategoryRepository.deleteProductCategory(product.id, queryRunner);
-        await this.productCategoryRepository.createProductCategory({
-          productID: product.id,
-          categoryID: dataUpdate['categoryID']
-        }, queryRunner);
+        await this.productCategoryRepository.deleteProductCategory(
+          product.id,
+          queryRunner,
+        );
+        await this.productCategoryRepository.createProductCategory(
+          {
+            productID: product.id,
+            categoryID: dataUpdate['categoryID'],
+          },
+          queryRunner,
+        );
+      }
+
+      // Update image product
+      if (body?.filePath && body?.fileName) {
+        await this.productImageRepository.deleteProductImage(
+          product.id,
+          queryRunner,
+        );
+        await this.productImageRepository.createProductImage(
+          {
+            productID: product.id,
+            fileName: body.fileName,
+            path: body.filePath,
+          },
+          queryRunner,
+        );
       }
 
       // COmmit trans
@@ -97,8 +139,6 @@ export class UpdateProductUseCase implements BaseUseCase {
     } catch (error) {
       await this.unitOfWork.rollbackTransaction();
       throw error;
-    } finally {
-      await this.unitOfWork.release();
     }
   }
 }

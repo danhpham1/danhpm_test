@@ -1,33 +1,37 @@
 import { IUnitOfWork } from '@/domain/services/unit-of-work.interface';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 
 @Injectable()
-export class UnitOfWork implements IUnitOfWork {
-    private queryRunner: QueryRunner;
+export class UnitOfWork implements IUnitOfWork, OnModuleDestroy {
+  private queryRunner: QueryRunner;
 
-    constructor(private readonly dataSource: DataSource) {
-        this.queryRunner = this.dataSource.createQueryRunner();
-    }
+  constructor(private readonly dataSource: DataSource) {
+    this.queryRunner = this.dataSource.createQueryRunner();
+  }
 
-    async startTransaction(): Promise<void> {
-        await this.queryRunner.connect();
-        await this.queryRunner.startTransaction();
-    }
+  async onModuleDestroy() {
+    await this.queryRunner.release();
+  }
 
-    async commitTransaction(): Promise<void> {
-        this.queryRunner.commitTransaction();
-    }
+  async startTransaction(): Promise<void> {
+    await this.queryRunner.connect();
+    await this.queryRunner.startTransaction();
+  }
 
-    async rollbackTransaction(): Promise<void> {
-        this.queryRunner.rollbackTransaction();
-    }
+  async commitTransaction(): Promise<void> {
+    this.queryRunner.commitTransaction();
+  }
 
-    async release(): Promise<void> {
-        this.queryRunner.release();
-    }
+  async rollbackTransaction(): Promise<void> {
+    this.queryRunner.rollbackTransaction();
+  }
 
-    getQueryRunner(): QueryRunner {
-        return this.queryRunner;
-    }
+  async release(): Promise<void> {
+    this.queryRunner.release();
+  }
+
+  getQueryRunner(): QueryRunner {
+    return this.queryRunner;
+  }
 }

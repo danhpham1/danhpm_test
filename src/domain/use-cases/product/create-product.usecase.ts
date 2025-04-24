@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   CATEGORIES_REPOSITORY,
   PRODUCT_CATEGORY_REPOSITORY,
+  PRODUCT_IMAGE_REPOSITORY,
   PRODUCT_REPOSITORY,
   PRODUCT_TYPE_REPOSITORY,
   TYPE_REPOSITORY,
@@ -12,10 +13,11 @@ import { ITypeRepository } from '@domain/repositories/type-repository.interface'
 import { ICategoriesRepository } from '@domain/repositories/categories-repository.intefaces';
 import { IProductCategoryRepository } from '@/domain/repositories/product-category-repository.interface';
 import { IProductTypeRepository } from '@/domain/repositories/product-type-repository.interface';
-import { IProduct } from '@domain/interfaces/product.interface';
+import { IProduct } from '@domain/interfaces/product/product.interface';
 import { IBodyCreateProductUseCase } from './product.interface';
 import { IProductRepository } from '@/domain/repositories/product-repository.interface';
 import { UnitOfWork } from '@/frameworks/database/unit-of-work.service';
+import { IProductImageRepository } from '@/domain/repositories/product-image-repository.interface';
 
 @Injectable()
 export class CreateProductUseCase implements BaseUseCase {
@@ -32,11 +34,15 @@ export class CreateProductUseCase implements BaseUseCase {
     private readonly productCategoryRepository: IProductCategoryRepository,
     @Inject(UNIT_OF_WORK_SERVICE)
     private readonly unitOfWork: UnitOfWork,
-  ) { }
+    @Inject(PRODUCT_IMAGE_REPOSITORY)
+    private readonly productImageRepository: IProductImageRepository,
+  ) {}
   async execute(body: IBodyCreateProductUseCase): Promise<IProduct> {
     try {
       if (body.categoryID) {
-        const category = await this.categoryRepository.findById(body.categoryID);
+        const category = await this.categoryRepository.findById(
+          body.categoryID,
+        );
 
         if (!category) {
           throw new NotFoundException('Not found category');
@@ -56,24 +62,44 @@ export class CreateProductUseCase implements BaseUseCase {
       await this.unitOfWork.startTransaction();
 
       // Create product
-      const product = await this.productRepository.createProduct({
-        name: body.name,
-        price: body.price,
-      }, queryRunner);
+      const product = await this.productRepository.createProduct(
+        {
+          name: body.name,
+          price: body.price,
+        },
+        queryRunner,
+      );
 
       if (product) {
         if (body.categoryID) {
-          await this.productCategoryRepository.createProductCategory({
-            productID: product.id,
-            categoryID: body.categoryID
-          }, queryRunner);
+          await this.productCategoryRepository.createProductCategory(
+            {
+              productID: product.id,
+              categoryID: body.categoryID,
+            },
+            queryRunner,
+          );
         }
 
         if (body.typeID) {
-          await this.productTypeRepository.createProductType({
-            productID: product.id,
-            typeID: body.typeID
-          }, queryRunner)
+          await this.productTypeRepository.createProductType(
+            {
+              productID: product.id,
+              typeID: body.typeID,
+            },
+            queryRunner,
+          );
+        }
+
+        if (body?.filePath && body?.fileName) {
+          await this.productImageRepository.createProductImage(
+            {
+              productID: product.id,
+              path: body.filePath,
+              fileName: body.fileName,
+            },
+            queryRunner,
+          );
         }
       }
 
@@ -83,8 +109,6 @@ export class CreateProductUseCase implements BaseUseCase {
     } catch (error) {
       await this.unitOfWork.rollbackTransaction();
       throw error;
-    } finally {
-      await this.unitOfWork.release();
     }
   }
 }

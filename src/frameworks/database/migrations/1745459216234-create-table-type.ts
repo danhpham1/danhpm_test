@@ -73,7 +73,7 @@ export class CreateTableType1745459216234 implements MigrationInterface {
         (NEWID(), 'Type 1', 1, GETDATE(), GETDATE(), 0),
         (NEWID(), 'Type 2', 1, GETDATE(), GETDATE(), 0),
         (NEWID(), 'Typ 3', 1, GETDATE(), GETDATE(), 0)    
-    `)
+    `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

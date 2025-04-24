@@ -1,5 +1,6 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { ProductCategoryEntity } from './product-category.entity';
 
 @Entity('categories')
 export class CategoriesEntity extends BaseEntity {
@@ -8,4 +9,10 @@ export class CategoriesEntity extends BaseEntity {
 
   @Column({ name: 'is_active' })
   isActive: boolean;
+
+  @OneToOne(
+    () => ProductCategoryEntity,
+    (productCategory) => productCategory.category,
+  )
+  productCategory: ProductCategoryEntity;
 }

@@ -55,6 +55,17 @@ export class CreateTableProductsImages1745464268567
             length: '250',
             isNullable: true,
           },
+          {
+            name: 'updated_at',
+            type: 'datetime',
+            default: 'GETDATE()',
+          },
+          {
+            name: 'updated_by',
+            type: 'nvarchar',
+            length: '250',
+            isNullable: true,
+          },
         ],
         foreignKeys: [
           {
