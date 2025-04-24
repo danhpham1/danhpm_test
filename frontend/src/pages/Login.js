@@ -1,30 +1,8 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Card, message, Alert } from "antd";
-import baseAPI from "../helper/base.api";
-import { getErrorMessage } from "../helper/helper";
 
 const Login = ({ onLogin }) => {
-  const [loading, setLoading] = useState(false);
   const [msgError, setMsgError] = useState("");
-
-  const handleLogin = async (values) => {
-    setLoading(true);
-    try {
-      const data = await baseAPI.post(`/auth/login`, values);
-      localStorage.setItem("token", data);
-      const profile = await baseAPI.get(`/auth/profile`, {
-        headers: {
-          Authorization: `Bearer ${data}`,
-        },
-      });
-      localStorage.setItem("user", JSON.stringify(profile));
-      onLogin(profile);
-    } catch (error) {
-      setMsgError(getErrorMessage(error));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div
@@ -46,7 +24,7 @@ const Login = ({ onLogin }) => {
             onClose={() => setMsgError("")}
           />
         ) : null}
-        <Form layout="vertical" onFinish={handleLogin}>
+        <Form layout="vertical">
           <Form.Item
             label="Username"
             name="username"
@@ -62,7 +40,7 @@ const Login = ({ onLogin }) => {
             <Input.Password />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
+            <Button type="primary" htmlType="submit" block>
               Login
             </Button>
           </Form.Item>
