@@ -73,7 +73,6 @@ export class ProductRepository
 
     if (queryParam?.categoryID) {
       const categoryIDS = queryParam.categoryID.split(',');
-      qb.leftJoinAndSelect('product.productCategory', 'productCategory');
       qb.andWhere('productCategory.categoryID IN (:...categoryIDS)', {
         categoryIDS: categoryIDS || [],
       });
@@ -81,7 +80,6 @@ export class ProductRepository
 
     if (queryParam?.typeID) {
       const typeIDS = queryParam.typeID.split(',');
-      qb.leftJoinAndSelect('product.productType', 'productType');
       qb.andWhere('productType.typeID IN (:...typeIDS)', {
         typeIDS: typeIDS || [],
       });
@@ -117,6 +115,7 @@ export class ProductRepository
     return this.createQueryBuilder('product')
       .leftJoinAndSelect('product.productCategory', 'productCategory')
       .leftJoinAndSelect('product.productType', 'productType')
+      .leftJoinAndSelect('product.productImage', 'productImage')
       .select([
         'product.id',
         'product.name',
@@ -127,6 +126,9 @@ export class ProductRepository
         'productType.id',
         'productType.productID',
         'productType.typeID',
+        'productImage.productID',
+        'productImage.path',
+        'productImage.fileName',
       ])
       .where('product.id = :id', { id })
       .andWhere(
@@ -134,6 +136,27 @@ export class ProductRepository
           qb.where('product.isDeleted = :isDeleted', {
             isDeleted: false,
           }).orWhere('product.isDeleted IS NULL');
+        }),
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('productImage.isDeleted = 0').orWhere(
+            'productImage.isDeleted IS NULL',
+          );
+        }),
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('productCategory.isDeleted = 0').orWhere(
+            'productCategory.isDeleted IS NULL',
+          );
+        }),
+      )
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('productType.isDeleted = 0').orWhere(
+            'productType.isDeleted IS NULL',
+          );
         }),
       )
       .getOne();

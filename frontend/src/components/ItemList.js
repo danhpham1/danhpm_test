@@ -192,7 +192,13 @@ const ItemList = () => {
       });
       setIsEdit(true);
       setIsModalOpen(true);
-      setFileList(item?.images);
+      setFileList([
+        {
+          name: item?.productImage?.fileName,
+          status: 'done',
+          url: `http://localhost:3000/${item?.productImage?.path}`
+        }
+      ]);
       form.setFieldsValue({
         ...item,
         categoryID: item?.productCategory?.categoryID,
